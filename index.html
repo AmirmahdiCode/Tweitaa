@@ -83,6 +83,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            position: sticky;
         }
         [data-theme="dark"] .header {
             background: rgba(15, 23, 42, 0.6);
@@ -93,16 +94,28 @@
             align-items: center;
             gap: 10px;
         }
-        .header-logo {
-            width: 38px;
-            height: 38px;
+        .header-logo { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; }
+        .header-typo { height: 32px; object-fit: contain; }
+
+        .theme-toggle {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 34px;
+            height: 34px;
             border-radius: 50%;
-            object-fit: cover;
+            background: var(--card-bg);
+            border: 1.5px solid var(--bg3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: var(--primary);
+            font-size: 15px;
         }
-        .header-typo {
-            height: 32px;
-            object-fit: contain;
-        }
+        .theme-toggle:active { transform: translateY(-50%) scale(0.9); }
 
         .main-container {
             flex: 1;
@@ -132,15 +145,8 @@
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
         }
-        .loading-text {
-            font-size: 15px;
-            font-weight: 700;
-            color: var(--text);
-        }
-        .loading-subtext {
-            font-size: 12px;
-            color: var(--text-light);
-        }
+        .loading-text { font-size: 15px; font-weight: 700; color: var(--text); }
+        .loading-subtext { font-size: 12px; color: var(--text-light); }
         @keyframes spin { to { transform: rotate(360deg); } }
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
@@ -156,17 +162,8 @@
         }
         .register-state.show { display: flex; }
 
-        .register-title {
-            font-size: 22px;
-            font-weight: 800;
-            color: var(--dark);
-            margin-bottom: 4px;
-        }
-        .register-subtitle {
-            font-size: 13px;
-            color: var(--text-light);
-            margin-bottom: 8px;
-        }
+        .register-title { font-size: 22px; font-weight: 800; color: var(--dark); margin-bottom: 4px; }
+        .register-subtitle { font-size: 13px; color: var(--text-light); margin-bottom: 8px; }
 
         .form-group {
             display: flex;
@@ -190,34 +187,39 @@
             color: var(--text);
             outline: none;
             transition: border-color 0.2s ease;
+            width: 100%;
         }
-        .form-input:focus {
-            border-color: var(--primary);
-        }
-        .form-input::placeholder {
-            color: var(--text-light);
-            font-size: 12px;
-        }
-        .form-input.invalid {
-            border-color: var(--danger);
-        }
+        .form-input:focus { border-color: var(--primary); }
+        .form-input::placeholder { color: var(--text-light); font-size: 12px; }
+        .form-input.invalid { border-color: var(--danger); }
+        .form-input.valid { border-color: var(--success); }
         .form-hint {
             font-size: 10.5px;
             color: var(--text-light);
             padding-right: 4px;
             line-height: 1.7;
         }
-        .form-hint.error {
-            color: var(--danger);
+        .form-hint.error { color: var(--danger); }
+        .form-hint.success { color: var(--success); }
+
+        .username-input-wrap { position: relative; }
+        .username-prefix {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-light);
+            font-size: 14px;
+            pointer-events: none;
+        }
+        .username-input-wrap .form-input {
+            padding-right: 32px;
+            direction: ltr;
+            text-align: left;
         }
 
-        .input-with-btn {
-            display: flex;
-            gap: 8px;
-        }
-        .input-with-btn .form-input {
-            flex: 1;
-        }
+        .input-with-btn { display: flex; gap: 8px; }
+        .input-with-btn .form-input { flex: 1; }
         .upload-btn {
             display: flex;
             align-items: center;
@@ -237,10 +239,7 @@
         .upload-btn:active { transform: scale(0.96); }
         .upload-btn i { font-size: 14px; }
 
-        .suggest-follow-section {
-            margin-top: 8px;
-            text-align: right;
-        }
+        .suggest-follow-section { margin-top: 8px; text-align: right; }
         .suggest-title {
             font-size: 12px;
             font-weight: 700;
@@ -248,70 +247,87 @@
             margin-bottom: 8px;
             padding-right: 4px;
         }
-        .suggest-list {
+        .suggest-scroll {
             display: flex;
-            flex-direction: column;
-            gap: 8px;
+            gap: 10px;
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding: 4px 2px 10px;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+        }
+        .suggest-scroll::-webkit-scrollbar { height: 4px; }
+        .suggest-scroll::-webkit-scrollbar-thumb {
+            background: var(--bg3);
+            border-radius: 10px;
         }
         .suggest-item {
             display: flex;
+            flex-direction: column;
             align-items: center;
-            gap: 12px;
-            padding: 10px 14px;
+            gap: 6px;
+            padding: 10px 8px;
+            min-width: 90px;
+            max-width: 90px;
             background: var(--card-bg);
             border: 1.5px solid var(--bg3);
             border-radius: 12px;
             cursor: pointer;
             transition: all 0.2s ease;
+            flex-shrink: 0;
+            position: relative;
         }
         .suggest-item.selected {
             border-color: var(--primary);
             background: rgba(249, 115, 22, 0.05);
         }
         .suggest-avatar {
-            width: 40px;
-            height: 40px;
+            width: 48px;
+            height: 48px;
             border-radius: 50%;
             background: var(--bg3);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 18px;
+            font-size: 20px;
             color: var(--text-light);
             flex-shrink: 0;
             overflow: hidden;
         }
-        .suggest-avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        .suggest-info {
-            flex: 1;
-            text-align: right;
-        }
+        .suggest-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .suggest-info { text-align: center; width: 100%; }
         .suggest-name {
-            font-size: 13px;
+            font-size: 11px;
             font-weight: 700;
             color: var(--dark);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
             display: flex;
             align-items: center;
-            gap: 4px;
+            justify-content: center;
+            gap: 2px;
         }
         .suggest-name .blue-tick {
-            width: 14px;
-            height: 14px;
+            width: 11px;
+            height: 11px;
             object-fit: contain;
+            flex-shrink: 0;
         }
         .suggest-username {
-            font-size: 11px;
+            font-size: 9.5px;
             color: var(--text-light);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
             direction: ltr;
-            text-align: right;
         }
         .suggest-check {
-            width: 24px;
-            height: 24px;
+            position: absolute;
+            top: 6px;
+            left: 6px;
+            width: 18px;
+            height: 18px;
             border-radius: 50%;
             border: 2px solid var(--bg3);
             display: flex;
@@ -319,37 +335,14 @@
             justify-content: center;
             transition: all 0.2s ease;
             color: transparent;
+            background: var(--card-bg);
         }
+        .suggest-check i { font-size: 10px; }
         .suggest-item.selected .suggest-check {
             background: var(--primary);
             border-color: var(--primary);
             color: #fff;
         }
-
-        .settings-row {
-            display: flex;
-            gap: 8px;
-            margin-top: 8px;
-        }
-        .settings-btn {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            padding: 10px;
-            background: var(--card-bg);
-            border: 1.5px solid var(--bg3);
-            border-radius: 12px;
-            font-family: var(--font);
-            font-size: 12px;
-            font-weight: 700;
-            color: var(--text);
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-        .settings-btn:active { transform: scale(0.97); }
-        .settings-btn i { font-size: 16px; color: var(--primary); }
 
         .footer {
             position: fixed;
@@ -373,11 +366,7 @@
             box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
         }
 
-        .footer-loading {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
+        .footer-loading { display: flex; flex-direction: column; gap: 8px; }
         .progress-info {
             display: flex;
             justify-content: space-between;
@@ -419,10 +408,7 @@
             transition: all 0.2s ease;
             box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
         }
-        .submit-btn:active {
-            transform: scale(0.98);
-            box-shadow: 0 2px 6px rgba(249, 115, 22, 0.3);
-        }
+        .submit-btn:active { transform: scale(0.98); box-shadow: 0 2px 6px rgba(249, 115, 22, 0.3); }
         .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
         .toast-container {
@@ -476,6 +462,9 @@
     <div class="toast-container" id="toastContainer"></div>
 
     <header class="header">
+        <button class="theme-toggle" id="btnTheme" type="button" aria-label="تغییر تم">
+            <i class="bi bi-moon-stars" id="themeIcon"></i>
+        </button>
         <div class="header-inner">
             <img src="images/logo.png" alt="توئیتا" class="header-logo">
             <img src="images/nameP.png" alt="توئیتا" class="header-typo">
@@ -499,6 +488,17 @@
             </div>
 
             <div class="form-group">
+                <label class="form-label">نام کاربری</label>
+                <div class="username-input-wrap">
+                    <span class="username-prefix">@</span>
+                    <input type="text" class="form-input" id="inputUsername" placeholder="username" dir="ltr" maxlength="30">
+                </div>
+                <div class="form-hint" id="usernameHint">
+                    فقط حروف انگلیسی، عدد و _ (بین ۳ تا ۳۰ کاراکتر)
+                </div>
+            </div>
+
+            <div class="form-group">
                 <label class="form-label">لینک تصویر پروفایل (اختیاری)</label>
                 <div class="input-with-btn">
                     <input type="url" class="form-input" id="inputProfile" placeholder="https://cdn.imgurl.ir/uploads/xxxx.png" dir="ltr">
@@ -508,22 +508,13 @@
                     </button>
                 </div>
                 <div class="form-hint" id="profileHint">
-                    فقط لینک از سایت <a href="javascript:void(0)" id="linkImgurl" style="color:var(--primary);font-weight:700;text-decoration:none;">imgurl.ir</a> با پسوند png / jpg / webp پذیرفته می‌شود.
-                    <br>
-                    ⚠️ هنگام آپلود، حتماً گزینه‌ی «دائمی» را انتخاب کنید.
+                    فقط لینک از سایت imgurl.ir با پسوند png / jpg / webp پذیرفته می‌شود. هنگام آپلود، حتماً گزینه‌ی «دائمی» را انتخاب کنید.
                 </div>
             </div>
 
             <div class="suggest-follow-section">
                 <div class="suggest-title">پیشنهاد برای دنبال کردن</div>
-                <div class="suggest-list" id="suggestList"></div>
-            </div>
-
-            <div class="settings-row">
-                <button class="settings-btn" id="btnTheme">
-                    <i class="bi bi-moon-stars" id="themeIcon"></i>
-                    <span id="themeText">حالت تاریک</span>
-                </button>
+                <div class="suggest-scroll" id="suggestList"></div>
             </div>
         </div>
 
@@ -553,10 +544,11 @@
         (function() {
             'use strict';
 
-            var API_URL = 'https://script.google.com/macros/s/AKfycbxJqL6nxh_fnv31knVhC79GFUg7JDJgm1-nwKPI-39Xt1dbWZ4wOb39XjcYt-yyQ2l_Ow/exec';
+            var API_URL = 'https://script.google.com/macros/s/AKfycbwDGPIQ8R7sKB9kOuUzhZ4r5AjjjIqzky7yDX_knK96rwnA-l5rvaHMXcNZtavE9WAuXQ/exec';
             var webApp = window.Eitaa && window.Eitaa.WebApp;
 
             var IMGURL_REGEX = /^https:\/\/cdn\.imgurl\.ir\/[A-Za-z0-9_\-\.\/]+\.(png|jpg|jpeg|webp)$/i;
+            var USERNAME_REGEX = /^[a-zA-Z0-9_]{3,30}$/;
 
             var loadingState = document.getElementById('loadingState');
             var registerState = document.getElementById('registerState');
@@ -567,18 +559,21 @@
             var progressPercent = document.getElementById('progressPercent');
             var progressLabel = document.getElementById('progressLabel');
             var inputName = document.getElementById('inputName');
+            var inputUsername = document.getElementById('inputUsername');
+            var usernameHint = document.getElementById('usernameHint');
             var inputProfile = document.getElementById('inputProfile');
             var profileHint = document.getElementById('profileHint');
             var suggestList = document.getElementById('suggestList');
             var submitBtn = document.getElementById('submitBtn');
             var btnTheme = document.getElementById('btnTheme');
             var themeIcon = document.getElementById('themeIcon');
-            var themeText = document.getElementById('themeText');
 
             var currentUser = null;
             var selectedFollows = [];
             var suggestedUsers = [];
             var currentTheme = 'light';
+            var usernameCheckTimer = null;
+            var isUsernameAvailable = false;
 
             function setProgress(percent, label) {
                 progressFill.style.width = percent + '%';
@@ -610,10 +605,8 @@
                 document.documentElement.setAttribute('data-theme', theme);
                 if (theme === 'dark') {
                     themeIcon.className = 'bi bi-sun';
-                    themeText.textContent = 'حالت روشن';
                 } else {
                     themeIcon.className = 'bi bi-moon-stars';
-                    themeText.textContent = 'حالت تاریک';
                 }
                 localStorage.setItem('tweitaa_theme', theme);
             }
@@ -621,6 +614,10 @@
             function isValidProfileUrl(url) {
                 if (!url) return true;
                 return IMGURL_REGEX.test(url);
+            }
+
+            function isValidUsername(username) {
+                return USERNAME_REGEX.test(username);
             }
 
             function openImgurlSite() {
@@ -634,7 +631,7 @@
             function renderSuggestions() {
                 suggestList.innerHTML = '';
                 if (suggestedUsers.length === 0) {
-                    suggestList.innerHTML = '<div style="text-align:center;font-size:12px;color:var(--text-light);padding:10px;">پیشنهادی وجود ندارد</div>';
+                    suggestList.innerHTML = '<div style="text-align:center;font-size:12px;color:var(--text-light);padding:10px;width:100%;">پیشنهادی وجود ندارد</div>';
                     return;
                 }
                 suggestedUsers.forEach(function(user) {
@@ -651,12 +648,12 @@
                         ? '<img src="images/bluetic.png" class="blue-tick" alt="official">'
                         : '';
                     div.innerHTML =
+                        '<div class="suggest-check"><i class="bi bi-check-lg"></i></div>' +
                         '<div class="suggest-avatar">' + avatarContent + '</div>' +
                         '<div class="suggest-info">' +
                             '<div class="suggest-name">' + displayName + blueTick + '</div>' +
                             '<div class="suggest-username">@' + (user.username || 'user') + '</div>' +
-                        '</div>' +
-                        '<div class="suggest-check"><i class="bi bi-check-lg"></i></div>';
+                        '</div>';
                     div.addEventListener('click', function() {
                         var id = user.eitaa_id;
                         if (selectedFollows.indexOf(id) > -1) {
@@ -749,6 +746,10 @@
                 if (currentUser.first_name) {
                     inputName.value = (currentUser.first_name + ' ' + (currentUser.last_name || '')).trim();
                 }
+                if (currentUser.username) {
+                    inputUsername.value = currentUser.username;
+                    checkUsername(currentUser.username);
+                }
             }
 
             btnTheme.addEventListener('click', function() {
@@ -756,32 +757,100 @@
             });
 
             document.getElementById('btnUploadImg').addEventListener('click', openImgurlSite);
-            document.getElementById('linkImgurl').addEventListener('click', openImgurlSite);
 
             inputProfile.addEventListener('input', function() {
                 var v = inputProfile.value.trim();
                 if (!v) {
-                    inputProfile.classList.remove('invalid');
-                    profileHint.classList.remove('error');
-                    profileHint.innerHTML = 'فقط لینک از سایت <a href="javascript:void(0)" id="linkImgurl" style="color:var(--primary);font-weight:700;text-decoration:none;">imgurl.ir</a> با پسوند png / jpg / webp پذیرفته می‌شود.<br>⚠️ هنگام آپلود، حتماً گزینه‌ی «دائمی» را انتخاب کنید.';
-                    document.getElementById('linkImgurl').addEventListener('click', openImgurlSite);
+                    inputProfile.classList.remove('invalid', 'valid');
+                    profileHint.classList.remove('error', 'success');
+                    profileHint.textContent = 'فقط لینک از سایت imgurl.ir با پسوند png / jpg / webp پذیرفته می‌شود. هنگام آپلود، حتماً گزینه‌ی «دائمی» را انتخاب کنید.';
                     return;
                 }
                 if (!isValidProfileUrl(v)) {
                     inputProfile.classList.add('invalid');
+                    inputProfile.classList.remove('valid');
                     profileHint.classList.add('error');
+                    profileHint.classList.remove('success');
                     profileHint.textContent = 'لینک نامعتبر است. باید با https://cdn.imgurl.ir/ شروع و به png/jpg/webp ختم شود.';
                 } else {
                     inputProfile.classList.remove('invalid');
+                    inputProfile.classList.add('valid');
                     profileHint.classList.remove('error');
-                    profileHint.innerHTML = '✓ لینک معتبر است.';
+                    profileHint.classList.add('success');
+                    profileHint.textContent = '✓ لینک معتبر است.';
                 }
+            });
+
+            function checkUsername(val) {
+                if (!val) {
+                    inputUsername.classList.remove('invalid', 'valid');
+                    usernameHint.classList.remove('error', 'success');
+                    usernameHint.textContent = 'فقط حروف انگلیسی، عدد و _ (بین ۳ تا ۳۰ کاراکتر)';
+                    isUsernameAvailable = false;
+                    return;
+                }
+                if (!isValidUsername(val)) {
+                    inputUsername.classList.add('invalid');
+                    inputUsername.classList.remove('valid');
+                    usernameHint.classList.add('error');
+                    usernameHint.classList.remove('success');
+                    usernameHint.textContent = 'نام کاربری نامعتبر است (فقط انگلیسی، عدد و _ بین ۳ تا ۳۰ کاراکتر)';
+                    isUsernameAvailable = false;
+                    return;
+                }
+                usernameHint.classList.remove('error', 'success');
+                usernameHint.textContent = 'در حال بررسی...';
+                if (usernameCheckTimer) clearTimeout(usernameCheckTimer);
+                usernameCheckTimer = setTimeout(async function() {
+                    var res = await apiCall('checkUsernameAvailability', {
+                        username: val,
+                        current_eitaa_id: currentUser ? currentUser.id : ''
+                    });
+                    if (res && res.ok && res.data) {
+                        if (res.data.available) {
+                            inputUsername.classList.remove('invalid');
+                            inputUsername.classList.add('valid');
+                            usernameHint.classList.remove('error');
+                            usernameHint.classList.add('success');
+                            usernameHint.textContent = '✓ این نام کاربری آزاد است.';
+                            isUsernameAvailable = true;
+                        } else {
+                            inputUsername.classList.add('invalid');
+                            inputUsername.classList.remove('valid');
+                            usernameHint.classList.add('error');
+                            usernameHint.classList.remove('success');
+                            usernameHint.textContent = '✗ این نام کاربری قبلاً انتخاب شده.';
+                            isUsernameAvailable = false;
+                        }
+                    } else {
+                        usernameHint.textContent = 'خطا در بررسی نام کاربری';
+                        isUsernameAvailable = false;
+                    }
+                }, 600);
+            }
+
+            inputUsername.addEventListener('input', function() {
+                checkUsername(inputUsername.value.trim());
             });
 
             submitBtn.addEventListener('click', async function() {
                 var name = inputName.value.trim();
                 if (!name) {
                     showToast('لطفاً نام نمایشی خود را وارد کنید');
+                    return;
+                }
+
+                var uname = inputUsername.value.trim();
+                if (!uname) {
+                    showToast('لطفاً نام کاربری خود را وارد کنید');
+                    return;
+                }
+                if (!isValidUsername(uname)) {
+                    showToast('نام کاربری نامعتبر است');
+                    return;
+                }
+                if (!isUsernameAvailable) {
+                    showToast('نام کاربری در دسترس نیست یا هنوز بررسی نشده');
                     return;
                 }
 
@@ -797,6 +866,7 @@
                 var updateResult = await apiCall('updateUserProfile', {
                     eitaa_id: currentUser.id,
                     first_name: name,
+                    username: uname,
                     profile_image: profileUrl || undefined
                 });
 
