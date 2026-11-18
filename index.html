@@ -530,7 +530,7 @@
         (function() {
             'use strict';
 
-            var API_URL = 'https://script.google.com/macros/s/AKfycbxuvUsPUeFwXlJG6SxKCuSeuKuMzpZ0dvL4SWY8LLBviR5xifZk4-eXNgUhX6ccpRiOcA/exec';
+            var API_URL = 'https://script.google.com/macros/s/AKfycbzcxTs1zDou0sU3sjkw9pqNDq4XdzEXQP8L-Htlc8Zgaol55NBW5hvOfER_KFFmxaV47A/exec';
             var webApp = window.Eitaa && window.Eitaa.WebApp;
 
             var loadingState = document.getElementById('loadingState');
@@ -541,8 +541,6 @@
             var progressFill = document.getElementById('progressFill');
             var progressPercent = document.getElementById('progressPercent');
             var progressLabel = document.getElementById('progressLabel');
-            var loadingText = document.getElementById('loadingText');
-            var loadingSubtext = document.getElementById('loadingSubtext');
             var inputName = document.getElementById('inputName');
             var inputProfile = document.getElementById('inputProfile');
             var suggestList = document.getElementById('suggestList');
@@ -604,24 +602,10 @@
                     document.documentElement.setAttribute('dir', 'ltr');
                     headerTypo.src = 'images/nameE.png';
                     langText.textContent = 'English';
-                    document.querySelector('.register-title').textContent = 'Welcome 👋';
-                    document.querySelector('.register-subtitle').textContent = 'Complete your profile to start';
-                    document.querySelectorAll('.form-label')[0].textContent = 'Display Name';
-                    document.querySelectorAll('.form-label')[1].textContent = 'Profile Image URL (optional)';
-                    inputName.placeholder = 'e.g. John Doe';
-                    document.querySelector('.suggest-title').textContent = 'Suggested to follow';
-                    document.getElementById('submitBtn').textContent = 'Register & Enter Tweitaa';
                 } else {
                     document.documentElement.setAttribute('dir', 'rtl');
                     headerTypo.src = 'images/nameP.png';
                     langText.textContent = 'فارسی';
-                    document.querySelector('.register-title').textContent = 'خوش آمدی 👋';
-                    document.querySelector('.register-subtitle').textContent = 'برای شروع، پروفایلت رو کامل کن';
-                    document.querySelectorAll('.form-label')[0].textContent = 'نام نمایشی';
-                    document.querySelectorAll('.form-label')[1].textContent = 'لینک تصویر پروفایل (اختیاری)';
-                    inputName.placeholder = 'مثلاً: علی رضایی';
-                    document.querySelector('.suggest-title').textContent = 'پیشنهاد برای دنبال کردن';
-                    document.getElementById('submitBtn').textContent = 'ثبت‌نام و ورود به توئیتا';
                 }
                 localStorage.setItem('tweitaa_lang', lang);
             }
@@ -699,14 +683,9 @@
                     return;
                 }
 
-                var initData = (webApp.initDataUnsafe && webApp.initDataUnsafe.query_id) ? webApp.initDataUnsafe.query_id : '';
-                var hash = (webApp.initDataUnsafe && webApp.initDataUnsafe.hash) ? webApp.initDataUnsafe.hash : '';
-
                 setProgress(40, 'در حال بررسی وضعیت حساب...');
 
                 var checkResult = await apiCall('registerOrLoginUser', {
-                    initData: initData,
-                    hash: hash,
                     user: {
                         id: currentUser.id,
                         first_name: currentUser.first_name || '',
@@ -729,8 +708,6 @@
                 }
 
                 setProgress(60, 'در حال آماده‌سازی پروفایل...');
-
-                var usersResult = await apiCall('getFollowingList', { eitaa_id: '__random_suggest__' });
                 suggestedUsers = [];
                 renderSuggestions();
 
