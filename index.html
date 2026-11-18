@@ -198,6 +198,44 @@
             color: var(--text-light);
             font-size: 12px;
         }
+        .form-input.invalid {
+            border-color: var(--danger);
+        }
+        .form-hint {
+            font-size: 10.5px;
+            color: var(--text-light);
+            padding-right: 4px;
+            line-height: 1.7;
+        }
+        .form-hint.error {
+            color: var(--danger);
+        }
+
+        .input-with-btn {
+            display: flex;
+            gap: 8px;
+        }
+        .input-with-btn .form-input {
+            flex: 1;
+        }
+        .upload-btn {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 0 14px;
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-family: var(--font);
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s ease;
+        }
+        .upload-btn:active { transform: scale(0.96); }
+        .upload-btn i { font-size: 14px; }
 
         .suggest-follow-section {
             margin-top: 8px;
@@ -256,6 +294,14 @@
             font-size: 13px;
             font-weight: 700;
             color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .suggest-name .blue-tick {
+            width: 14px;
+            height: 14px;
+            object-fit: contain;
         }
         .suggest-username {
             font-size: 11px;
@@ -302,13 +348,8 @@
             cursor: pointer;
             transition: all 0.2s ease;
         }
-        .settings-btn:active {
-            transform: scale(0.97);
-        }
-        .settings-btn i {
-            font-size: 16px;
-            color: var(--primary);
-        }
+        .settings-btn:active { transform: scale(0.97); }
+        .settings-btn i { font-size: 16px; color: var(--primary); }
 
         .footer {
             position: fixed;
@@ -344,13 +385,8 @@
             font-size: 11px;
             font-weight: 700;
         }
-        .progress-label {
-            color: var(--text);
-        }
-        .progress-percent {
-            color: var(--primary);
-            direction: ltr;
-        }
+        .progress-label { color: var(--text); }
+        .progress-percent { color: var(--primary); direction: ltr; }
         .progress-track {
             width: 100%;
             height: 6px;
@@ -366,15 +402,9 @@
             transition: width 0.5s ease;
         }
 
-        .footer-register {
-            display: none;
-        }
-        .footer-register.show {
-            display: block;
-        }
-        .footer-loading.hide {
-            display: none;
-        }
+        .footer-register { display: none; }
+        .footer-register.show { display: block; }
+        .footer-loading.hide { display: none; }
         .submit-btn {
             width: 100%;
             padding: 14px;
@@ -393,10 +423,7 @@
             transform: scale(0.98);
             box-shadow: 0 2px 6px rgba(249, 115, 22, 0.3);
         }
-        .submit-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
+        .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
         .toast-container {
             position: fixed;
@@ -438,20 +465,9 @@
             text-align: center;
         }
         .error-state.show { display: flex; }
-        .error-icon {
-            font-size: 48px;
-            color: var(--danger);
-        }
-        .error-title {
-            font-size: 18px;
-            font-weight: 800;
-            color: var(--dark);
-        }
-        .error-desc {
-            font-size: 13px;
-            color: var(--text-light);
-            line-height: 1.8;
-        }
+        .error-icon { font-size: 48px; color: var(--danger); }
+        .error-title { font-size: 18px; font-weight: 800; color: var(--dark); }
+        .error-desc { font-size: 13px; color: var(--text-light); line-height: 1.8; }
     </style>
 </head>
 <body>
@@ -462,15 +478,15 @@
     <header class="header">
         <div class="header-inner">
             <img src="images/logo.png" alt="توئیتا" class="header-logo">
-            <img src="images/nameP.png" alt="توئیتا" class="header-typo" id="headerTypo">
+            <img src="images/nameP.png" alt="توئیتا" class="header-typo">
         </div>
     </header>
 
     <main class="main-container">
         <div class="loading-state" id="loadingState">
             <div class="loader-spinner"></div>
-            <div class="loading-text" id="loadingText">در حال آماده‌سازی...</div>
-            <div class="loading-subtext" id="loadingSubtext">لطفاً چند لحظه صبر کنید</div>
+            <div class="loading-text">در حال آماده‌سازی...</div>
+            <div class="loading-subtext">لطفاً چند لحظه صبر کنید</div>
         </div>
 
         <div class="register-state" id="registerState">
@@ -484,7 +500,18 @@
 
             <div class="form-group">
                 <label class="form-label">لینک تصویر پروفایل (اختیاری)</label>
-                <input type="url" class="form-input" id="inputProfile" placeholder="https://example.com/avatar.jpg" dir="ltr">
+                <div class="input-with-btn">
+                    <input type="url" class="form-input" id="inputProfile" placeholder="https://cdn.imgurl.ir/uploads/xxxx.png" dir="ltr">
+                    <button class="upload-btn" id="btnUploadImg" type="button">
+                        <i class="bi bi-cloud-upload"></i>
+                        آپلود
+                    </button>
+                </div>
+                <div class="form-hint" id="profileHint">
+                    فقط لینک از سایت <a href="javascript:void(0)" id="linkImgurl" style="color:var(--primary);font-weight:700;text-decoration:none;">imgurl.ir</a> با پسوند png / jpg / webp پذیرفته می‌شود.
+                    <br>
+                    ⚠️ هنگام آپلود، حتماً گزینه‌ی «دائمی» را انتخاب کنید.
+                </div>
             </div>
 
             <div class="suggest-follow-section">
@@ -496,10 +523,6 @@
                 <button class="settings-btn" id="btnTheme">
                     <i class="bi bi-moon-stars" id="themeIcon"></i>
                     <span id="themeText">حالت تاریک</span>
-                </button>
-                <button class="settings-btn" id="btnLang">
-                    <i class="bi bi-translate"></i>
-                    <span id="langText">فارسی</span>
                 </button>
             </div>
         </div>
@@ -530,8 +553,10 @@
         (function() {
             'use strict';
 
-            var API_URL = 'https://script.google.com/macros/s/AKfycbzcxTs1zDou0sU3sjkw9pqNDq4XdzEXQP8L-Htlc8Zgaol55NBW5hvOfER_KFFmxaV47A/exec';
+            var API_URL = 'https://script.google.com/macros/s/AKfycbxJqL6nxh_fnv31knVhC79GFUg7JDJgm1-nwKPI-39Xt1dbWZ4wOb39XjcYt-yyQ2l_Ow/exec';
             var webApp = window.Eitaa && window.Eitaa.WebApp;
+
+            var IMGURL_REGEX = /^https:\/\/cdn\.imgurl\.ir\/[A-Za-z0-9_\-\.\/]+\.(png|jpg|jpeg|webp)$/i;
 
             var loadingState = document.getElementById('loadingState');
             var registerState = document.getElementById('registerState');
@@ -543,20 +568,17 @@
             var progressLabel = document.getElementById('progressLabel');
             var inputName = document.getElementById('inputName');
             var inputProfile = document.getElementById('inputProfile');
+            var profileHint = document.getElementById('profileHint');
             var suggestList = document.getElementById('suggestList');
             var submitBtn = document.getElementById('submitBtn');
             var btnTheme = document.getElementById('btnTheme');
-            var btnLang = document.getElementById('btnLang');
             var themeIcon = document.getElementById('themeIcon');
             var themeText = document.getElementById('themeText');
-            var langText = document.getElementById('langText');
-            var headerTypo = document.getElementById('headerTypo');
 
             var currentUser = null;
             var selectedFollows = [];
             var suggestedUsers = [];
             var currentTheme = 'light';
-            var currentLang = 'fa';
 
             function setProgress(percent, label) {
                 progressFill.style.width = percent + '%';
@@ -596,18 +618,17 @@
                 localStorage.setItem('tweitaa_theme', theme);
             }
 
-            function applyLang(lang) {
-                currentLang = lang;
-                if (lang === 'en') {
-                    document.documentElement.setAttribute('dir', 'ltr');
-                    headerTypo.src = 'images/nameE.png';
-                    langText.textContent = 'English';
+            function isValidProfileUrl(url) {
+                if (!url) return true;
+                return IMGURL_REGEX.test(url);
+            }
+
+            function openImgurlSite() {
+                if (webApp && webApp.openEitaaLink) {
+                    webApp.openEitaaLink('https://imgurl.ir/');
                 } else {
-                    document.documentElement.setAttribute('dir', 'rtl');
-                    headerTypo.src = 'images/nameP.png';
-                    langText.textContent = 'فارسی';
+                    window.open('https://imgurl.ir/', '_blank', 'noopener,noreferrer');
                 }
-                localStorage.setItem('tweitaa_lang', lang);
             }
 
             function renderSuggestions() {
@@ -623,10 +644,16 @@
                     var avatarContent = user.profile_image
                         ? '<img src="' + user.profile_image + '" alt="">'
                         : '<i class="bi bi-person-fill"></i>';
+                    var displayName = user.type === 'channel'
+                        ? user.first_name
+                        : ((user.first_name || '') + ' ' + (user.last_name || '')).trim() || 'کاربر';
+                    var blueTick = user.is_official
+                        ? '<img src="images/bluetic.png" class="blue-tick" alt="official">'
+                        : '';
                     div.innerHTML =
                         '<div class="suggest-avatar">' + avatarContent + '</div>' +
                         '<div class="suggest-info">' +
-                            '<div class="suggest-name">' + (user.first_name || 'کاربر') + ' ' + (user.last_name || '') + '</div>' +
+                            '<div class="suggest-name">' + displayName + blueTick + '</div>' +
                             '<div class="suggest-username">@' + (user.username || 'user') + '</div>' +
                         '</div>' +
                         '<div class="suggest-check"><i class="bi bi-check-lg"></i></div>';
@@ -660,9 +687,7 @@
 
             async function init() {
                 var savedTheme = localStorage.getItem('tweitaa_theme') || 'light';
-                var savedLang = localStorage.getItem('tweitaa_lang') || 'fa';
                 applyTheme(savedTheme);
-                applyLang(savedLang);
 
                 if (webApp) {
                     try {
@@ -707,8 +732,12 @@
                     return;
                 }
 
-                setProgress(60, 'در حال آماده‌سازی پروفایل...');
-                suggestedUsers = [];
+                setProgress(60, 'در حال آماده‌سازی پیشنهادها...');
+
+                var suggestResult = await apiCall('getRandomSuggestions', {});
+                if (suggestResult && suggestResult.ok && Array.isArray(suggestResult.data)) {
+                    suggestedUsers = suggestResult.data;
+                }
                 renderSuggestions();
 
                 setProgress(100, 'آماده ثبت‌نام');
@@ -726,8 +755,27 @@
                 applyTheme(currentTheme === 'dark' ? 'light' : 'dark');
             });
 
-            btnLang.addEventListener('click', function() {
-                applyLang(currentLang === 'fa' ? 'en' : 'fa');
+            document.getElementById('btnUploadImg').addEventListener('click', openImgurlSite);
+            document.getElementById('linkImgurl').addEventListener('click', openImgurlSite);
+
+            inputProfile.addEventListener('input', function() {
+                var v = inputProfile.value.trim();
+                if (!v) {
+                    inputProfile.classList.remove('invalid');
+                    profileHint.classList.remove('error');
+                    profileHint.innerHTML = 'فقط لینک از سایت <a href="javascript:void(0)" id="linkImgurl" style="color:var(--primary);font-weight:700;text-decoration:none;">imgurl.ir</a> با پسوند png / jpg / webp پذیرفته می‌شود.<br>⚠️ هنگام آپلود، حتماً گزینه‌ی «دائمی» را انتخاب کنید.';
+                    document.getElementById('linkImgurl').addEventListener('click', openImgurlSite);
+                    return;
+                }
+                if (!isValidProfileUrl(v)) {
+                    inputProfile.classList.add('invalid');
+                    profileHint.classList.add('error');
+                    profileHint.textContent = 'لینک نامعتبر است. باید با https://cdn.imgurl.ir/ شروع و به png/jpg/webp ختم شود.';
+                } else {
+                    inputProfile.classList.remove('invalid');
+                    profileHint.classList.remove('error');
+                    profileHint.innerHTML = '✓ لینک معتبر است.';
+                }
             });
 
             submitBtn.addEventListener('click', async function() {
@@ -737,10 +785,14 @@
                     return;
                 }
 
+                var profileUrl = inputProfile.value.trim();
+                if (profileUrl && !isValidProfileUrl(profileUrl)) {
+                    showToast('لینک تصویر پروفایل نامعتبر است');
+                    return;
+                }
+
                 submitBtn.disabled = true;
                 submitBtn.textContent = 'در حال ثبت‌نام...';
-
-                var profileUrl = inputProfile.value.trim();
 
                 var updateResult = await apiCall('updateUserProfile', {
                     eitaa_id: currentUser.id,
