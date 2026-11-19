@@ -811,6 +811,49 @@
         .dropdown-item i { font-size: 15px; color: var(--text-light); }
         .dropdown-item.danger { color: var(--danger); }
         .dropdown-item.danger i { color: var(--danger); }
+
+        .compose-input {
+            width: 100%;
+            min-height: 150px;
+            padding: 14px;
+            border: 1.5px solid var(--bg3);
+            border-radius: 12px;
+            font-family: var(--font);
+            font-size: 13px;
+            background: var(--bg2);
+            color: var(--text);
+            outline: none;
+            resize: vertical;
+            line-height: 1.8;
+        }
+        .compose-input:focus { border-color: var(--primary); }
+        .compose-counter {
+            text-align: left;
+            font-size: 10px;
+            color: var(--text-light);
+            margin-top: 6px;
+            margin-bottom: 12px;
+            direction: ltr;
+        }
+        .compose-submit-btn {
+            width: 100%;
+            padding: 14px;
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-family: var(--font);
+            font-size: 14px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 46px;
+        }
+        .compose-submit-btn:active { transform: scale(0.98); }
+        .compose-submit-btn:disabled { opacity: 0.6; cursor: wait; }
     </style>
 </head>
 <body>
@@ -891,6 +934,20 @@
         </div>
     </div>
 
+    <div class="modal-overlay" id="composeModal">
+        <div class="modal-box" style="max-height:90vh;">
+            <div class="modal-header">
+                <div class="modal-title" id="composeTitle">توئیت جدید</div>
+                <button class="modal-close" id="composeCloseBtn"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <div class="modal-body">
+                <textarea class="compose-input" id="composeInput" placeholder="چی تو ذهنته؟" maxlength="500"></textarea>
+                <div class="compose-counter" id="composeCounter">0 / 500</div>
+                <button class="compose-submit-btn" id="composeSubmitBtn">ثبت توئیت</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         (function() {
             'use strict';
@@ -910,6 +967,12 @@
             var tweetModal = document.getElementById('tweetModal');
             var modalBody = document.getElementById('modalBody');
             var modalCloseBtn = document.getElementById('modalCloseBtn');
+            var composeModal = document.getElementById('composeModal');
+            var composeInput = document.getElementById('composeInput');
+            var composeCounter = document.getElementById('composeCounter');
+            var composeSubmitBtn = document.getElementById('composeSubmitBtn');
+            var composeTitle = document.getElementById('composeTitle');
+            var composeCloseBtn = document.getElementById('composeCloseBtn');
 
             var currentTheme = 'light';
             var currentUser = null;
@@ -920,6 +983,8 @@
             var hasMoreFeed = true;
             var currentOpenTweet = null;
             var dropdownEl = null;
+            var composeMode = 'create';
+            var composeTweetId = null;
 
             function showProgress() { topProgressFill.style.width = '70%'; }
             function finishProgress() {
@@ -1234,7 +1299,7 @@
             }
 
             function editTweet(tweetId) {
-                showToast('ویرایش به‌زودی...');
+                openEditTweetModal(tweetId);
             }
 
             async function deleteTweet(tweetId) {
@@ -1451,6 +1516,38 @@
                 currentOpenTweet = null;
             }
 
+            function openCreateTweetModal() {
+                composeMode = 'create';
+                composeTweetId = null;
+                composeTitle.textContent = 'توئیت جدید';
+                composeInput.value = '';
+                composeCounter.textContent = '0 / 500';
+                composeSubmitBtn.textContent = 'ثبت توئیت';
+                composeModal.classList.add('show');
+                setTimeout(function() { composeInput.focus(); }, 200);
+            }
+
+            async function openEditTweetModal(tweetId) {
+                showProgress();
+                var res = await apiCall('getSinglePost', { message_number: tweetId });
+                finishProgress();
+                if (!res || !res.ok || !res.data) { showToast('توئیت پیدا نشد'); return; }
+                composeMode = 'edit';
+                composeTweetId = tweetId;
+                composeTitle.textContent = 'ویرایش توئیت';
+                composeInput.value = res.data.text || '';
+                composeCounter.textContent = (composeInput.value.length) + ' / 500';
+                composeSubmitBtn.textContent = 'ذخیره تغییرات';
+                composeModal.classList.add('show');
+                setTimeout(function() { composeInput.focus(); }, 200);
+            }
+
+            function closeComposeModal() {
+                composeModal.classList.remove('show');
+                composeMode = 'create';
+                composeTweetId = null;
+            }
+
             feedList.addEventListener('click', function(e) {
                 var likeBtn = e.target.closest('.like-btn');
                 if (likeBtn) { e.stopPropagation(); handleLike(likeBtn); return; }
@@ -1478,6 +1575,62 @@
                 if (e.target === tweetModal) closeModal();
             });
 
+            composeCloseBtn.addEventListener('click', closeComposeModal);
+            composeModal.addEventListener('click', function(e) {
+                if (e.target === composeModal) closeComposeModal();
+            });
+
+            composeInput.addEventListener('input', function() {
+                composeCounter.textContent = composeInput.value.length + ' / 500';
+            });
+
+            composeSubmitBtn.addEventListener('click', async function() {
+                var text = composeInput.value.trim();
+                if (!text) { showToast('متن توئیت خالی است'); return; }
+                if (text.length > 500) { showToast('حداکثر ۵۰۰ کاراکتر'); return; }
+
+                composeSubmitBtn.disabled = true;
+                composeSubmitBtn.innerHTML = '<span class="mini-spinner white"></span>';
+                showProgress();
+
+                var res;
+                if (composeMode === 'create') {
+                    res = await apiCall('createUserTweet', {
+                        eitaa_id: String(currentUser.id),
+                        text: text
+                    });
+                } else {
+                    res = await apiCall('editPost', {
+                        message_number: composeTweetId,
+                        text: text,
+                        eitaa_id: String(currentUser.id)
+                    });
+                }
+
+                finishProgress();
+                composeSubmitBtn.disabled = false;
+                composeSubmitBtn.textContent = composeMode === 'create' ? 'ثبت توئیت' : 'ذخیره تغییرات';
+
+                if (res && res.ok) {
+                    if (composeMode === 'create') {
+                        closeComposeModal();
+                        showToast('توئیت شما ثبت شد (در انتظار تأیید)', 'success');
+                        feedOffset = 0;
+                        feedSeed = Math.floor(Math.random() * 999999);
+                        feedList.innerHTML = '';
+                        hasMoreFeed = true;
+                        loadFeedPage();
+                    } else {
+                        var savedId = composeTweetId;
+                        closeComposeModal();
+                        showToast('تغییرات ذخیره شد', 'success');
+                        if (currentOpenTweet) openTweetModal(savedId);
+                    }
+                } else {
+                    showToast('خطا در ثبت. دوباره تلاش کنید.');
+                }
+            });
+
             window.addEventListener('scroll', function() {
                 if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 400) {
                     loadFeedPage();
@@ -1488,7 +1641,14 @@
                 var savedTheme = localStorage.getItem('tweitaa_theme') || 'light';
                 applyTheme(savedTheme);
 
-                if (webApp) { try { webApp.ready(); webApp.expand(); } catch(e) {} }
+                if (webApp) {
+                    try {
+                        webApp.ready();
+                        webApp.expand();
+                        if (webApp.requestFullscreen) webApp.requestFullscreen();
+                        if (webApp.BackButton && webApp.BackButton.hide) webApp.BackButton.hide();
+                    } catch(e) {}
+                }
 
                 currentUser = webApp && webApp.initDataUnsafe && webApp.initDataUnsafe.user
                     ? webApp.initDataUnsafe.user : null;
@@ -1512,9 +1672,7 @@
                 applyTheme(currentTheme === 'dark' ? 'light' : 'dark');
             });
 
-            fabCreate.addEventListener('click', function() {
-                showToast('صفحه ساخت توئیت به‌زودی...');
-            });
+            fabCreate.addEventListener('click', openCreateTweetModal);
 
             init();
         })();
