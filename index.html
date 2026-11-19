@@ -544,7 +544,7 @@
         (function() {
             'use strict';
 
-            var API_URL = 'https://script.google.com/macros/s/AKfycbwDGPIQ8R7sKB9kOuUzhZ4r5AjjjIqzky7yDX_knK96rwnA-l5rvaHMXcNZtavE9WAuXQ/exec';
+            var API_URL = 'https://script.google.com/macros/s/AKfycbxmhpbWDGPQyVvS0xglQlzctJgHBvvAgW_Ykj4rBVYruinZaXw2mUtJc8csKv6u2GzjaA/exec';
             var webApp = window.Eitaa && window.Eitaa.WebApp;
 
             var IMGURL_REGEX = /^https:\/\/cdn\.imgurl\.ir\/[A-Za-z0-9_\-\.\/]+\.(png|jpg|jpeg|webp)$/i;
@@ -717,7 +717,7 @@
                     return;
                 }
 
-                if (checkResult.data && checkResult.data.new_user === false) {
+                if (checkResult.data && checkResult.data.new_user === false && checkResult.data.is_profile_complete === true) {
                     setProgress(100, 'در حال ورود...');
                     setTimeout(function() {
                         window.location.href = 'dashboard/index.html';
@@ -733,19 +733,26 @@
                 }
                 renderSuggestions();
 
+                var profResult = await apiCall('getUserProfile', { eitaa_id: currentUser.id });
+                if (profResult && profResult.ok && profResult.data) {
+                    if (profResult.data.first_name) {
+                        inputName.value = (profResult.data.first_name + ' ' + (profResult.data.last_name || '')).trim();
+                    }
+                    if (profResult.data.username) {
+                        inputUsername.value = profResult.data.username;
+                        checkUsername(profResult.data.username);
+                    }
+                    if (profResult.data.profile_image) {
+                        inputProfile.value = profResult.data.profile_image;
+                        inputProfile.dispatchEvent(new Event('input'));
+                    }
+                }
+
                 setProgress(100, 'آماده ثبت‌نام');
                 loadingState.style.display = 'none';
                 registerState.classList.add('show');
                 footerLoading.classList.add('hide');
                 footerRegister.classList.add('show');
-
-                if (currentUser.first_name) {
-                    inputName.value = (currentUser.first_name + ' ' + (currentUser.last_name || '')).trim();
-                }
-                if (currentUser.username) {
-                    inputUsername.value = currentUser.username;
-                    checkUsername(currentUser.username);
-                }
             }
 
             btnTheme.addEventListener('click', function() {
