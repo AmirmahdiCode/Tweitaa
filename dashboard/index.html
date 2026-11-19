@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>توئیتا - داشبورد</title>
+    <script src="https://developer.eitaa.com/eitaa-web-app.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <style>
+        @font-face {
+            font-family: 'Kamva';
+            src: url('../other/kamva.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        :root {
+            --bg: #ffffff;
+            --bg2: #f5f5f5;
+            --bg3: #e0e0e0;
+            --primary: #f97316;
+            --primary-dark: #ea580c;
+            --primary-light: #fdba74;
+            --primary-rgb: 249, 115, 22;
+            --dark: #1f2937;
+            --text: #374151;
+            --text-light: #9ca3af;
+            --white: #ffffff;
+            --card-bg: #ffffff;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+            --radius: 16px;
+            --border: 1px solid rgba(0, 0, 0, 0.08);
+            --success: #10b981;
+            --danger: #ef4444;
+            --font: 'Kamva', Tahoma, sans-serif;
+        }
+
+        [data-theme="dark"] {
+            --bg: #0f172a;
+            --bg2: #1e293b;
+            --bg3: #334155;
+            --dark: #f8fafc;
+            --text: #cbd5e1;
+            --text-light: #64748b;
+            --card-bg: #1e293b;
+            --border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        * {
+            margin: 0; padding: 0; box-sizing: border-box;
+            -webkit-touch-callout: none; -webkit-user-select: none; user-select: none;
+        }
+        img { pointer-events: none; }
+
+        body {
+            font-family: var(--font);
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            transition: background 0.3s ease, color 0.3s ease;
+            padding-bottom: 80px;
+        }
+
+        .bg-animation {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            z-index: -1;
+            background: linear-gradient(135deg, var(--bg) 0%, var(--bg2) 100%);
+        }
+
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            padding: 12px 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        [data-theme="dark"] .header {
+            background: rgba(15, 23, 42, 0.6);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .header-inner {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .header-logo { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; }
+        .header-typo { height: 30px; object-fit: contain; }
+
+        .theme-toggle, .profile-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--card-bg);
+            border: 1.5px solid var(--bg3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: var(--primary);
+            font-size: 15px;
+            overflow: hidden;
+            text-decoration: none;
+        }
+        .theme-toggle { left: 20px; }
+        .profile-btn { right: 20px; }
+        .theme-toggle:active, .profile-btn:active { transform: translateY(-50%) scale(0.9); }
+        .profile-btn img { width: 100%; height: 100%; object-fit: cover; }
+        .profile-btn i { font-size: 18px; }
+
+        .main-container {
+            flex: 1;
+            max-width: 600px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 16px 0 100px;
+        }
+
+        .section-title-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            margin-bottom: 10px;
+            margin-top: 16px;
+        }
+        .section-title {
+            font-size: 15px;
+            font-weight: 800;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .section-title i { color: var(--primary); font-size: 16px; }
+
+        .trending-scroll {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding: 4px 16px 12px;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+        }
+        .trending-scroll::-webkit-scrollbar { height: 0; }
+
+        .trend-card {
+            min-width: 260px;
+            max-width: 260px;
+            background: var(--card-bg);
+            border: 1.5px solid var(--bg3);
+            border-radius: 14px;
+            padding: 12px 14px;
+            flex-shrink: 0;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+        .trend-card:active { transform: scale(0.97); }
+        .trend-card-head {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+        .trend-card-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--bg3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: var(--text-light);
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+        .trend-card-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .trend-card-name {
+            font-size: 11px;
+            font-weight: 800;
+            color: var(--dark);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .trend-card-text {
+            font-size: 11.5px;
+            line-height: 1.7;
+            color: var(--text);
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            min-height: 58px;
+        }
+        .trend-card-stats {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 8px;
+            font-size: 10px;
+            color: var(--text-light);
+            font-weight: 700;
+        }
+        .trend-card-stats span { display: flex; align-items: center; gap: 3px; }
+
+        .suggest-scroll {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding: 4px 16px 12px;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+        }
+        .suggest-scroll::-webkit-scrollbar { height: 0; }
+
+        .suggest-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 8px;
+            min-width: 90px;
+            max-width: 90px;
+            background: var(--card-bg);
+            border: 1.5px solid var(--bg3);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+            position: relative;
+        }
+        .suggest-item.selected {
+            border-color: var(--primary);
+            background: rgba(249, 115, 22, 0.05);
+        }
+        .suggest-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--bg3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: var(--text-light);
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+        .suggest-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .suggest-info { text-align: center; width: 100%; }
+        .suggest-name {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--dark);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+        }
+        .suggest-name .blue-tick {
+            width: 11px;
+            height: 11px;
+            object-fit: contain;
+            flex-shrink: 0;
+        }
+        .suggest-username {
+            font-size: 9.5px;
+            color: var(--text-light);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            direction: ltr;
+        }
+        .suggest-follow-btn {
+            margin-top: 2px;
+            padding: 4px 10px;
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-family: var(--font);
+            font-size: 9.5px;
+            font-weight: 800;
+            cursor: pointer;
+            width: 100%;
+        }
+        .suggest-follow-btn.following {
+            background: var(--bg3);
+            color: var(--text);
+        }
+
+        .feed-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding: 0 12px;
+        }
+
+        .tweet-card {
+            background: var(--card-bg);
+            border: 1.5px solid var(--bg3);
+            border-radius: 14px;
+            padding: 12px 14px;
+            transition: all 0.2s ease;
+            animation: cardIn 0.4s ease backwards;
+        }
+        @keyframes cardIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .tweet-head {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+        .tweet-avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: var(--bg3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            color: var(--text-light);
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+        .tweet-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .tweet-info { flex: 1; min-width: 0; }
+        .tweet-name-row {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 12.5px;
+            font-weight: 800;
+            color: var(--dark);
+        }
+        .tweet-name-row .blue-tick { width: 12px; height: 12px; object-fit: contain; }
+        .tweet-meta {
+            font-size: 10px;
+            color: var(--text-light);
+            direction: ltr;
+            text-align: right;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .tweet-text {
+            font-size: 12.5px;
+            line-height: 1.85;
+            color: var(--text);
+            margin-bottom: 8px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .tweet-image {
+            width: 100%;
+            max-height: 400px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            border: 1px solid var(--bg3);
+        }
+        .tweet-actions {
+            display: flex;
+            gap: 16px;
+            padding-top: 8px;
+            border-top: 1px solid var(--bg3);
+        }
+        .tweet-action-btn {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: none;
+            border: none;
+            font-family: var(--font);
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-light);
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+        .tweet-action-btn:active { transform: scale(0.95); }
+        .tweet-action-btn i { font-size: 15px; }
+        .tweet-action-btn.liked { color: var(--danger); }
+        .tweet-action-btn.liked i { animation: heartPop 0.4s ease; }
+        @keyframes heartPop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.4); }
+            100% { transform: scale(1); }
+        }
+
+        .feed-loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 20px;
+            font-size: 12px;
+            color: var(--text-light);
+        }
+        .mini-spinner {
+            width: 18px;
+            height: 18px;
+            border: 2.5px solid var(--bg3);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .feed-end {
+            text-align: center;
+            padding: 20px;
+            font-size: 11px;
+            color: var(--text-light);
+            font-weight: 700;
+        }
+
+        .bottom-nav {
+            position: fixed;
+            bottom: 12px;
+            left: 5%;
+            right: 5%;
+            max-width: 500px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1.5px solid var(--bg3);
+            border-radius: 22px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 6px 4px;
+            z-index: 200;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+        }
+        [data-theme="dark"] .bottom-nav {
+            background: rgba(30, 41, 59, 0.75);
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+        }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            cursor: pointer;
+            text-decoration: none;
+            color: var(--text-light);
+            padding: 6px 12px;
+            font-family: var(--font);
+            background: none;
+            border: none;
+            transition: all 0.2s ease;
+            border-radius: 14px;
+        }
+        .nav-item i { font-size: 18px; }
+        .nav-item span { font-size: 9px; font-weight: 700; }
+        .nav-item:active { transform: scale(0.92); }
+        .nav-item.active { color: var(--primary); }
+        .nav-item.active i { animation: navBounce 0.4s ease; }
+        @keyframes navBounce {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-3px); }
+            100% { transform: translateY(0); }
+        }
+
+        .fab-create {
+            position: fixed;
+            bottom: 90px;
+            left: 20px;
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 150;
+            box-shadow: 0 4px 16px rgba(249, 115, 22, 0.4);
+            transition: all 0.2s ease;
+        }
+        .fab-create:active { transform: scale(0.9); }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-light);
+        }
+        .empty-state i { font-size: 40px; margin-bottom: 10px; display: block; }
+        .empty-state p { font-size: 12px; }
+
+        .toast-container {
+            position: fixed;
+            top: 70px;
+            left: 5%;
+            right: 5%;
+            max-width: 400px;
+            margin: 0 auto;
+            z-index: 3000;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            pointer-events: none;
+        }
+        .toast {
+            background: var(--danger);
+            color: #fff;
+            border-radius: 12px;
+            padding: 12px 14px;
+            font-size: 12px;
+            font-weight: 700;
+            box-shadow: 0 4px 20px rgba(239, 68, 68, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            pointer-events: auto;
+            animation: toastIn 0.3s ease;
+        }
+        @keyframes toastIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-animation"></div>
+    <div class="toast-container" id="toastContainer"></div>
+
+    <header class="header">
+        <button class="theme-toggle" id="btnTheme" type="button" aria-label="تغییر تم">
+            <i class="bi bi-moon-stars" id="themeIcon"></i>
+        </button>
+        <div class="header-inner">
+            <img src="../images/logo.png" alt="توئیتا" class="header-logo">
+            <img src="../images/nameP.png" alt="توئیتا" class="header-typo">
+        </div>
+        <a class="profile-btn" href="../profile/index.html" aria-label="پروفایل" id="profileBtn">
+            <i class="bi bi-person-fill"></i>
+        </a>
+    </header>
+
+    <main class="main-container">
+        <div class="section-title-row">
+            <div class="section-title"><i class="bi bi-fire"></i> داغ‌ترین توئیت‌ها</div>
+        </div>
+        <div class="trending-scroll" id="trendingScroll">
+            <div class="feed-loading"><div class="mini-spinner"></div><span>در حال بارگذاری...</span></div>
+        </div>
+
+        <div class="section-title-row">
+            <div class="section-title"><i class="bi bi-people-fill"></i> پیشنهاد برای دنبال کردن</div>
+        </div>
+        <div class="suggest-scroll" id="suggestScroll">
+            <div class="feed-loading"><div class="mini-spinner"></div><span>در حال بارگذاری...</span></div>
+        </div>
+
+        <div class="section-title-row">
+            <div class="section-title"><i class="bi bi-collection-fill"></i> همه توئیت‌ها</div>
+        </div>
+        <div class="feed-list" id="feedList"></div>
+        <div class="feed-loading" id="feedLoading" style="display:none;">
+            <div class="mini-spinner"></div><span>در حال دریافت...</span>
+        </div>
+        <div class="feed-end" id="feedEnd" style="display:none;">به پایان رسید 🎉</div>
+    </main>
+
+    <button class="fab-create" id="fabCreate" aria-label="توئیت جدید">
+        <i class="bi bi-plus-lg"></i>
+    </button>
+
+    <nav class="bottom-nav">
+        <a href="index.html" class="nav-item active">
+            <i class="bi bi-house-door-fill"></i>
+            <span>داشبورد</span>
+        </a>
+        <a href="../explore/index.html" class="nav-item">
+            <i class="bi bi-compass"></i>
+            <span>اکسپلور</span>
+        </a>
+        <a href="../search/index.html" class="nav-item">
+            <i class="bi bi-search"></i>
+            <span>جستجو</span>
+        </a>
+        <a href="../settings/index.html" class="nav-item">
+            <i class="bi bi-gear"></i>
+            <span>تنظیمات</span>
+        </a>
+    </nav>
+
+    <script>
+        (function() {
+            'use strict';
+
+            var API_URL = 'https://script.google.com/macros/s/AKfycby6hPZWgAR-OJhOYnl4ACNQdlp7P2sgY0sbOz-RshhXSG8pSgvxsDOC0SmIZGGwDhAmEA/exec';
+            var webApp = window.Eitaa && window.Eitaa.WebApp;
+
+            var themeIcon = document.getElementById('themeIcon');
+            var btnTheme = document.getElementById('btnTheme');
+            var profileBtn = document.getElementById('profileBtn');
+            var trendingScroll = document.getElementById('trendingScroll');
+            var suggestScroll = document.getElementById('suggestScroll');
+            var feedList = document.getElementById('feedList');
+            var feedLoading = document.getElementById('feedLoading');
+            var feedEnd = document.getElementById('feedEnd');
+            var fabCreate = document.getElementById('fabCreate');
+
+            var currentTheme = 'light';
+            var currentUser = null;
+            var userProfile = null;
+            var feedOffset = 0;
+            var feedSeed = Math.floor(Math.random() * 999999);
+            var isLoadingFeed = false;
+            var hasMoreFeed = true;
+
+            function showToast(msg) {
+                var container = document.getElementById('toastContainer');
+                var toast = document.createElement('div');
+                toast.className = 'toast';
+                toast.innerHTML = '<i class="bi bi-exclamation-triangle-fill"></i><span>' + msg + '</span>';
+                container.appendChild(toast);
+                setTimeout(function() { toast.remove(); }, 4000);
+            }
+
+            function applyTheme(theme) {
+                currentTheme = theme;
+                document.documentElement.setAttribute('data-theme', theme);
+                themeIcon.className = theme === 'dark' ? 'bi bi-sun' : 'bi bi-moon-stars';
+                localStorage.setItem('tweitaa_theme', theme);
+            }
+
+            function timeAgo(iso) {
+                var d = new Date(iso);
+                var diff = (Date.now() - d.getTime()) / 1000;
+                if (diff < 60) return 'همین حالا';
+                if (diff < 3600) return Math.floor(diff/60) + ' دقیقه';
+                if (diff < 86400) return Math.floor(diff/3600) + ' ساعت';
+                if (diff < 604800) return Math.floor(diff/86400) + ' روز';
+                return Math.floor(diff/604800) + ' هفته';
+            }
+
+            function escapeHtml(str) {
+                if (!str) return '';
+                return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+            }
+
+            async function apiCall(action, params) {
+                try {
+                    var payload = { action: action, params: params || {} };
+                    var r = await fetch(API_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: JSON.stringify(payload)
+                    });
+                    return await r.json();
+                } catch(e) {
+                    return { ok: false, error: 'network' };
+                }
+            }
+
+            function renderTweetCard(t) {
+                var owner = t.owner || {};
+                var displayName = owner.first_name ? (owner.first_name + ' ' + (owner.last_name || '')).trim() : (t.channel_id === 'user_tweet' ? 'کاربر' : t.channel_id);
+                var username = owner.username || (t.channel_id !== 'user_tweet' ? t.channel_id : 'user');
+                var avatar = owner.profile_image
+                    ? '<img src="' + escapeHtml(owner.profile_image) + '" alt="">'
+                    : '<i class="bi bi-person-fill"></i>';
+                var isChannelOfficial = t.channel_id && t.channel_id !== 'user_tweet' && t.is_official;
+                var blueTick = isChannelOfficial ? '<img src="../images/bluetic.png" class="blue-tick" alt="official">' : '';
+                var imageHtml = t.image_link ? '<img class="tweet-image" src="' + escapeHtml(t.image_link) + '" alt="" loading="lazy">' : '';
+
+                return '<div class="tweet-card" data-id="' + escapeHtml(t.message_number) + '">' +
+                    '<div class="tweet-head">' +
+                        '<div class="tweet-avatar">' + avatar + '</div>' +
+                        '<div class="tweet-info">' +
+                            '<div class="tweet-name-row">' + escapeHtml(displayName) + blueTick + '</div>' +
+                            '<div class="tweet-meta">@' + escapeHtml(username) + ' · ' + timeAgo(t.iso_time) + '</div>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="tweet-text">' + escapeHtml(t.text) + '</div>' +
+                    imageHtml +
+                    '<div class="tweet-actions">' +
+                        '<button class="tweet-action-btn like-btn" data-id="' + escapeHtml(t.message_number) + '">' +
+                            '<i class="bi bi-heart"></i><span>' + (t.likes_count || 0) + '</span>' +
+                        '</button>' +
+                        '<button class="tweet-action-btn comment-btn" data-id="' + escapeHtml(t.message_number) + '">' +
+                            '<i class="bi bi-chat"></i><span>' + (t.comments_count || 0) + '</span>' +
+                        '</button>' +
+                        '<button class="tweet-action-btn view-btn">' +
+                            '<i class="bi bi-eye"></i><span>' + (t.views || 0) + '</span>' +
+                        '</button>' +
+                    '</div>' +
+                '</div>';
+            }
+
+            async function loadTrending() {
+                var res = await apiCall('getTrendingTweets', { limit: 10 });
+                if (res && res.ok && Array.isArray(res.data)) {
+                    if (res.data.length === 0) {
+                        trendingScroll.innerHTML = '<div class="empty-state" style="width:100%"><i class="bi bi-fire"></i><p>هنوز توئیت داغی نیست</p></div>';
+                        return;
+                    }
+                    trendingScroll.innerHTML = res.data.map(function(t) {
+                        var owner = t.owner || {};
+                        var displayName = owner.first_name ? (owner.first_name + ' ' + (owner.last_name || '')).trim() : (t.channel_id === 'user_tweet' ? 'کاربر' : t.channel_id);
+                        var avatar = owner.profile_image
+                            ? '<img src="' + escapeHtml(owner.profile_image) + '" alt="">'
+                            : '<i class="bi bi-person-fill"></i>';
+                        return '<div class="trend-card">' +
+                            '<div class="trend-card-head">' +
+                                '<div class="trend-card-avatar">' + avatar + '</div>' +
+                                '<div class="trend-card-name">' + escapeHtml(displayName) + '</div>' +
+                            '</div>' +
+                            '<div class="trend-card-text">' + escapeHtml(t.text) + '</div>' +
+                            '<div class="trend-card-stats">' +
+                                '<span><i class="bi bi-heart-fill"></i> ' + (t.likes_count || 0) + '</span>' +
+                                '<span><i class="bi bi-chat-fill"></i> ' + (t.comments_count || 0) + '</span>' +
+                            '</div>' +
+                        '</div>';
+                    }).join('');
+                } else {
+                    trendingScroll.innerHTML = '<div class="empty-state" style="width:100%"><i class="bi bi-fire"></i><p>خطا در بارگذاری</p></div>';
+                }
+            }
+
+            async function loadSuggestions() {
+                var res = await apiCall('getRandomSuggestions', {});
+                if (res && res.ok && Array.isArray(res.data)) {
+                    var myId = currentUser ? String(currentUser.id) : '';
+                    var myFollowing = userProfile && userProfile.following ? String(userProfile.following).split(',').map(function(s){return s.trim();}) : [];
+                    var filtered = res.data.filter(function(s) { return String(s.eitaa_id) !== myId; });
+                    if (filtered.length === 0) {
+                        suggestScroll.innerHTML = '<div class="empty-state" style="width:100%"><i class="bi bi-people"></i><p>پیشنهادی نیست</p></div>';
+                        return;
+                    }
+                    suggestScroll.innerHTML = filtered.map(function(u) {
+                        var isFollowing = myFollowing.indexOf(String(u.eitaa_id)) > -1;
+                        var displayName = u.type === 'channel' ? u.first_name : ((u.first_name || '') + ' ' + (u.last_name || '')).trim() || 'کاربر';
+                        var avatar = u.profile_image ? '<img src="' + escapeHtml(u.profile_image) + '" alt="">' : '<i class="bi bi-person-fill"></i>';
+                        var blueTick = u.is_official ? '<img src="../images/bluetic.png" class="blue-tick" alt="official">' : '';
+                        return '<div class="suggest-item" data-id="' + escapeHtml(u.eitaa_id) + '">' +
+                            '<div class="suggest-avatar">' + avatar + '</div>' +
+                            '<div class="suggest-info">' +
+                                '<div class="suggest-name">' + escapeHtml(displayName) + blueTick + '</div>' +
+                                '<div class="suggest-username">@' + escapeHtml(u.username || 'user') + '</div>' +
+                            '</div>' +
+                            '<button class="suggest-follow-btn' + (isFollowing ? ' following' : '') + '" data-id="' + escapeHtml(u.eitaa_id) + '">' + (isFollowing ? 'دنبال شده' : 'دنبال') + '</button>' +
+                        '</div>';
+                    }).join('');
+
+                    suggestScroll.querySelectorAll('.suggest-follow-btn').forEach(function(btn) {
+                        btn.addEventListener('click', async function(e) {
+                            e.stopPropagation();
+                            var targetId = btn.dataset.id;
+                            var res2 = await apiCall('toggleFollow', {
+                                eitaa_id: String(currentUser.id),
+                                target_id: targetId
+                            });
+                            if (res2 && res2.ok) {
+                                if (res2.data.action === 'followed') {
+                                    btn.textContent = 'دنبال شده';
+                                    btn.classList.add('following');
+                                } else {
+                                    btn.textContent = 'دنبال';
+                                    btn.classList.remove('following');
+                                }
+                            } else {
+                                showToast('خطا در فالو کردن');
+                            }
+                        });
+                    });
+                } else {
+                    suggestScroll.innerHTML = '<div class="empty-state" style="width:100%"><i class="bi bi-people"></i><p>خطا در بارگذاری</p></div>';
+                }
+            }
+
+            async function loadFeedPage() {
+                if (isLoadingFeed || !hasMoreFeed) return;
+                isLoadingFeed = true;
+                feedLoading.style.display = 'flex';
+
+                var res = await apiCall('getRandomFeed', {
+                    offset: feedOffset,
+                    limit: 20,
+                    seed: feedSeed
+                });
+
+                feedLoading.style.display = 'none';
+
+                if (res && res.ok && res.data && Array.isArray(res.data.tweets)) {
+                    if (res.data.tweets.length === 0 && feedOffset === 0) {
+                        feedList.innerHTML = '<div class="empty-state"><i class="bi bi-chat-square-text"></i><p>هنوز توئیتی وجود ندارد</p></div>';
+                        feedEnd.style.display = 'none';
+                    } else {
+                        var html = res.data.tweets.map(renderTweetCard).join('');
+                        feedList.insertAdjacentHTML('beforeend', html);
+                        feedOffset = res.data.next_offset;
+                        hasMoreFeed = res.data.has_more;
+                        if (!hasMoreFeed) feedEnd.style.display = 'block';
+                    }
+                } else {
+                    showToast('خطا در بارگذاری فید');
+                }
+                isLoadingFeed = false;
+            }
+
+            function handleLike(btn) {
+                if (!currentUser) return;
+                var id = btn.dataset.id;
+                apiCall('toggleLike', { eitaa_id: String(currentUser.id), message_number: id }).then(function(res) {
+                    if (res && res.ok && res.data) {
+                        var span = btn.querySelector('span');
+                        span.textContent = res.data.likes_count;
+                        if (res.data.action === 'liked') {
+                            btn.classList.add('liked');
+                            btn.querySelector('i').className = 'bi bi-heart-fill';
+                        } else {
+                            btn.classList.remove('liked');
+                            btn.querySelector('i').className = 'bi bi-heart';
+                        }
+                    }
+                });
+            }
+
+            feedList.addEventListener('click', function(e) {
+                var likeBtn = e.target.closest('.like-btn');
+                if (likeBtn) {
+                    e.stopPropagation();
+                    handleLike(likeBtn);
+                    return;
+                }
+                var commentBtn = e.target.closest('.comment-btn');
+                if (commentBtn) {
+                    showToast('صفحه کامنت به‌زودی...');
+                    return;
+                }
+            });
+
+            window.addEventListener('scroll', function() {
+                if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 400) {
+                    loadFeedPage();
+                }
+            });
+
+            async function init() {
+                var savedTheme = localStorage.getItem('tweitaa_theme') || 'light';
+                applyTheme(savedTheme);
+
+                if (webApp) {
+                    try { webApp.ready(); webApp.expand(); } catch(e) {}
+                }
+
+                currentUser = webApp && webApp.initDataUnsafe && webApp.initDataUnsafe.user
+                    ? webApp.initDataUnsafe.user
+                    : null;
+
+                if (!currentUser || !currentUser.id) {
+                    window.location.href = '../index.html';
+                    return;
+                }
+
+                var profRes = await apiCall('getUserProfile', { eitaa_id: String(currentUser.id) });
+                if (profRes && profRes.ok && profRes.data) {
+                    userProfile = profRes.data;
+                    if (userProfile.profile_image) {
+                        profileBtn.innerHTML = '<img src="' + escapeHtml(userProfile.profile_image) + '" alt="">';
+                    }
+                }
+
+                loadTrending();
+                loadSuggestions();
+                loadFeedPage();
+            }
+
+            btnTheme.addEventListener('click', function() {
+                applyTheme(currentTheme === 'dark' ? 'light' : 'dark');
+            });
+
+            fabCreate.addEventListener('click', function() {
+                showToast('صفحه ساخت توئیت به‌زودی...');
+            });
+
+            init();
+        })();
+    </script>
+</body>
+</html>
