@@ -89,13 +89,13 @@
 
         .header {
             position: sticky;
-            top: 0;
+            top: 56px;
             z-index: 100;
             background: rgba(255, 255, 255, 0.6);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-            padding: 12px 20px;
+            padding: 10px 60px;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -111,26 +111,6 @@
         }
         .header-logo { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; }
         .header-typo { height: 30px; object-fit: contain; }
-
-        .theme-toggle {
-            position: absolute;
-            left: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            background: var(--card-bg);
-            border: 1.5px solid var(--bg3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            color: var(--primary);
-            font-size: 15px;
-        }
-        .theme-toggle:active { transform: translateY(-50%) scale(0.9); }
 
         .main-container {
             flex: 1;
@@ -563,7 +543,7 @@
 
         .toast-container {
             position: fixed;
-            top: 70px;
+            top: 100px;
             left: 5%;
             right: 5%;
             max-width: 400px;
@@ -851,6 +831,7 @@
             align-items: center;
             justify-content: center;
             min-height: 46px;
+            gap: 8px;
         }
         .compose-submit-btn:active { transform: scale(0.98); }
         .compose-submit-btn:disabled { opacity: 0.6; cursor: wait; }
@@ -863,9 +844,6 @@
     <div class="toast-container" id="toastContainer"></div>
 
     <header class="header">
-        <button class="theme-toggle" id="btnTheme" type="button" aria-label="تغییر تم">
-            <i class="bi bi-moon-stars" id="themeIcon"></i>
-        </button>
         <div class="header-inner">
             <img src="../images/logo.png" alt="توئیتا" class="header-logo">
             <img src="../images/nameP.png" alt="توئیتا" class="header-typo">
@@ -952,11 +930,9 @@
         (function() {
             'use strict';
 
-            var API_URL = 'https://script.google.com/macros/s/AKfycbxRLhuX9uMdoPu_l45w8qlx65--akp8lwIRFZhbDn2C50Ku0y9vRVJvQziB_uTGhoazHw/exec';
+            var API_URL = 'https://script.google.com/macros/s/AKfycby0m1Epv_vU334SqAMtgUdw-tfcXVGUIQjycO1X2f-WITddMxYONIUlnzcVsIxqNsTVeg/exec';
             var webApp = window.Eitaa && window.Eitaa.WebApp;
 
-            var themeIcon = document.getElementById('themeIcon');
-            var btnTheme = document.getElementById('btnTheme');
             var trendingScroll = document.getElementById('trendingScroll');
             var suggestScroll = document.getElementById('suggestScroll');
             var feedList = document.getElementById('feedList');
@@ -1005,7 +981,6 @@
             function applyTheme(theme) {
                 currentTheme = theme;
                 document.documentElement.setAttribute('data-theme', theme);
-                themeIcon.className = theme === 'dark' ? 'bi bi-sun' : 'bi bi-moon-stars';
                 localStorage.setItem('tweitaa_theme', theme);
             }
 
@@ -1590,7 +1565,7 @@
                 if (text.length > 500) { showToast('حداکثر ۵۰۰ کاراکتر'); return; }
 
                 composeSubmitBtn.disabled = true;
-                composeSubmitBtn.innerHTML = '<span class="mini-spinner white"></span>';
+                composeSubmitBtn.innerHTML = '<span class="mini-spinner white"></span><span style="margin-right:8px;">در حال بررسی توسط هوش مصنوعی...</span>';
                 showProgress();
 
                 var res;
@@ -1614,7 +1589,7 @@
                 if (res && res.ok) {
                     if (composeMode === 'create') {
                         closeComposeModal();
-                        showToast('توئیت شما ثبت شد (در انتظار تأیید)', 'success');
+                        showToast('توئیت شما ثبت شد', 'success');
                         feedOffset = 0;
                         feedSeed = Math.floor(Math.random() * 999999);
                         feedList.innerHTML = '';
@@ -1626,6 +1601,8 @@
                         showToast('تغییرات ذخیره شد', 'success');
                         if (currentOpenTweet) openTweetModal(savedId);
                     }
+                } else if (res && res.error === 'content_rejected') {
+                    showToast('متن شما شامل محتوای غیرمجاز است. لطفاً بازنویسی کنید.');
                 } else {
                     showToast('خطا در ثبت. دوباره تلاش کنید.');
                 }
@@ -1667,12 +1644,6 @@
                 loadSuggestions();
                 loadFeedPage();
             }
-
-            btnTheme.addEventListener('click', function() {
-                applyTheme(currentTheme === 'dark' ? 'light' : 'dark');
-            });
-
-            fabCreate.addEventListener('click', openCreateTweetModal);
 
             init();
         })();
