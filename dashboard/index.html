@@ -112,8 +112,9 @@
         .header-logo { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; }
         .header-typo { height: 30px; object-fit: contain; }
 
-        .theme-toggle, .profile-btn {
+        .theme-toggle {
             position: absolute;
+            left: 20px;
             top: 50%;
             transform: translateY(-50%);
             width: 36px;
@@ -128,14 +129,8 @@
             transition: all 0.2s ease;
             color: var(--primary);
             font-size: 15px;
-            overflow: hidden;
-            text-decoration: none;
         }
-        .theme-toggle { left: 20px; }
-        .profile-btn { right: 20px; }
-        .theme-toggle:active, .profile-btn:active { transform: translateY(-50%) scale(0.9); }
-        .profile-btn img { width: 100%; height: 100%; object-fit: cover; }
-        .profile-btn i { font-size: 18px; }
+        .theme-toggle:active { transform: translateY(-50%) scale(0.9); }
 
         .main-container {
             flex: 1;
@@ -546,7 +541,7 @@
             cursor: pointer;
             text-decoration: none;
             color: var(--text-light);
-            padding: 6px 12px;
+            padding: 6px 10px;
             font-family: var(--font);
             background: none;
             border: none;
@@ -777,19 +772,18 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            margin-right: auto;
         }
         .comment-menu-btn:active { background: var(--bg3); }
 
         .dropdown-menu {
             position: absolute;
-            top: 100%;
-            left: 0;
             background: var(--card-bg);
             border: 1.5px solid var(--bg3);
             border-radius: 12px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
             min-width: 150px;
-            z-index: 500;
+            z-index: 5000;
             overflow: hidden;
             animation: dropIn 0.2s ease;
             direction: rtl;
@@ -833,9 +827,6 @@
             <img src="../images/logo.png" alt="توئیتا" class="header-logo">
             <img src="../images/nameP.png" alt="توئیتا" class="header-typo">
         </div>
-        <a class="profile-btn" href="../profile/index.html" aria-label="پروفایل" id="profileBtn">
-            <i class="bi bi-person-fill"></i>
-        </a>
     </header>
 
     <main class="main-container">
@@ -880,6 +871,10 @@
             <i class="bi bi-search"></i>
             <span>جستجو</span>
         </a>
+        <a href="../profile/index.html" class="nav-item">
+            <i class="bi bi-person"></i>
+            <span>پروفایل</span>
+        </a>
         <a href="../settings/index.html" class="nav-item">
             <i class="bi bi-gear"></i>
             <span>تنظیمات</span>
@@ -905,7 +900,6 @@
 
             var themeIcon = document.getElementById('themeIcon');
             var btnTheme = document.getElementById('btnTheme');
-            var profileBtn = document.getElementById('profileBtn');
             var trendingScroll = document.getElementById('trendingScroll');
             var suggestScroll = document.getElementById('suggestScroll');
             var feedList = document.getElementById('feedList');
@@ -927,9 +921,7 @@
             var currentOpenTweet = null;
             var dropdownEl = null;
 
-            function showProgress() {
-                topProgressFill.style.width = '70%';
-            }
+            function showProgress() { topProgressFill.style.width = '70%'; }
             function finishProgress() {
                 topProgressFill.style.width = '100%';
                 setTimeout(function() { topProgressFill.style.width = '0%'; }, 400);
@@ -981,7 +973,8 @@
                 }
             }
 
-            function buildTweetHeader(t, isModal) {
+            function renderTweetCard(t) {
+                var isOwn = currentUser && String(t.channel_id) === String(currentUser.id);
                 var owner = t.owner || {};
                 var displayName = owner.first_name ? (owner.first_name + ' ' + (owner.last_name || '')).trim() : (t.is_user_tweet ? 'کاربر' : t.channel_id);
                 var username = owner.username || (t.is_user_tweet ? 'user' : t.channel_id);
@@ -989,21 +982,17 @@
                     ? '<img src="' + escapeHtml(owner.profile_image) + '" alt="">'
                     : '<i class="bi bi-person-fill"></i>';
                 var blueTick = t.is_official_channel ? '<img src="../images/bluetic.png" class="blue-tick" alt="official">' : '';
-                return '<div class="tweet-head">' +
-                    '<div class="tweet-avatar">' + avatar + '</div>' +
-                    '<div class="tweet-info">' +
-                        '<div class="tweet-name-row">' + escapeHtml(displayName) + blueTick + '</div>' +
-                        '<div class="tweet-meta">@' + escapeHtml(username) + ' · ' + timeAgo(t.iso_time) + '</div>' +
-                    '</div>' +
-                    '<button class="tweet-menu-btn" data-id="' + escapeHtml(t.message_number) + '"><i class="bi bi-three-dots-vertical"></i></button>' +
-                '</div>';
-            }
-
-            function renderTweetCard(t) {
-                var isOwn = currentUser && String(t.channel_id) === String(currentUser.id);
                 var imageHtml = t.image_link ? '<img class="tweet-image" src="' + escapeHtml(t.image_link) + '" alt="" loading="lazy">' : '';
+
                 return '<div class="tweet-card" data-id="' + escapeHtml(t.message_number) + '" data-own="' + (isOwn ? '1' : '0') + '">' +
-                    buildTweetHeader(t, false) +
+                    '<div class="tweet-head">' +
+                        '<div class="tweet-avatar">' + avatar + '</div>' +
+                        '<div class="tweet-info">' +
+                            '<div class="tweet-name-row">' + escapeHtml(displayName) + blueTick + '</div>' +
+                            '<div class="tweet-meta">@' + escapeHtml(username) + ' · ' + timeAgo(t.iso_time) + '</div>' +
+                        '</div>' +
+                        '<button class="tweet-menu-btn" data-id="' + escapeHtml(t.message_number) + '" data-own="' + (isOwn ? '1' : '0') + '"><i class="bi bi-three-dots-vertical"></i></button>' +
+                    '</div>' +
                     '<div class="tweet-text">' + escapeHtml(t.text) + '</div>' +
                     imageHtml +
                     '<div class="tweet-actions">' +
@@ -1177,6 +1166,10 @@
             }
 
             function openTweetMenu(btn, tweetId, isOwn) {
+                if (btn._menuOpen) return;
+                btn._menuOpen = true;
+                setTimeout(function() { btn._menuOpen = false; }, 300);
+
                 closeDropdown();
                 var rect = btn.getBoundingClientRect();
                 var menu = document.createElement('div');
@@ -1200,18 +1193,18 @@
                 document.body.appendChild(menu);
                 dropdownEl = menu;
 
+                var menuWidth = 160;
                 var top = rect.bottom + window.scrollY + 4;
                 var left = rect.left + window.scrollX;
-                var menuWidth = 150;
                 if (left + menuWidth > window.innerWidth - 10) {
                     left = window.innerWidth - menuWidth - 10;
                 }
-                menu.style.position = 'absolute';
                 menu.style.top = top + 'px';
                 menu.style.left = left + 'px';
 
                 menu.querySelectorAll('.dropdown-item').forEach(function(item) {
-                    item.addEventListener('click', function() {
+                    item.addEventListener('click', function(ev) {
+                        ev.stopPropagation();
                         var action = item.dataset.action;
                         closeDropdown();
                         if (action === 'share') shareTweet(tweetId);
@@ -1223,17 +1216,17 @@
 
                 setTimeout(function() {
                     document.addEventListener('click', function onDocClick(e) {
-                        if (dropdownEl && !dropdownEl.contains(e.target) && !btn.contains(e.target)) {
+                        if (dropdownEl && !dropdownEl.contains(e.target)) {
                             closeDropdown();
-                            document.removeEventListener('click', onDocClick);
+                            document.removeEventListener('click', onDocClick, true);
                         }
-                    });
-                }, 10);
+                    }, true);
+                }, 100);
             }
 
             function shareTweet(tweetId) {
                 if (webApp && webApp.openEitaaLink) {
-                    var shareUrl = 'https://eitaa.com/share/url?url=' + encodeURIComponent('https://amirmahdicode.github.io/Tweitaa/dashboard/?tweet=' + tweetId);
+                    var shareUrl = 'https://eitaa.com/share/url?url=' + encodeURIComponent('https://eitaa.com/tweitaa_app/?startapp=' + tweetId);
                     webApp.openEitaaLink(shareUrl);
                 } else {
                     showToast('اشتراک‌گذاری فقط در ایتا', 'success');
@@ -1253,7 +1246,7 @@
                     showToast('توئیت حذف شد', 'success');
                     var card = feedList.querySelector('[data-id="' + tweetId + '"]');
                     if (card) card.remove();
-                    closeModal();
+                    if (tweetModal.classList.contains('show')) closeModal();
                 } else {
                     showToast('خطا در حذف');
                 }
@@ -1356,20 +1349,20 @@
                         '</div>' +
                     '</div>';
 
-                bindModalEvents(tweetId);
+                bindModalEvents(tweetId, isOwn);
             }
 
-            function bindModalEvents(tweetId) {
+            function bindModalEvents(tweetId, isOwn) {
                 var likeBtn = modalBody.querySelector('.like-btn');
                 if (likeBtn) likeBtn.addEventListener('click', function() { handleLike(likeBtn); });
 
-                var menuBtn = modalBody.querySelector('.tweet-menu-btn');
-                if (menuBtn) {
+                modalBody.querySelectorAll('.tweet-menu-btn').forEach(function(menuBtn) {
                     menuBtn.addEventListener('click', function(e) {
                         e.stopPropagation();
+                        e.preventDefault();
                         openTweetMenu(menuBtn, menuBtn.dataset.id, menuBtn.dataset.own === '1');
                     });
-                }
+                });
 
                 var sendBtn = document.getElementById('commentSendBtn');
                 var input = document.getElementById('commentInput');
@@ -1410,19 +1403,23 @@
             }
 
             function openCommentMenu(btn, commentId, tweetId) {
+                if (btn._menuOpen) return;
+                btn._menuOpen = true;
+                setTimeout(function() { btn._menuOpen = false; }, 300);
+
                 closeDropdown();
                 var rect = btn.getBoundingClientRect();
                 var menu = document.createElement('div');
                 menu.className = 'dropdown-menu';
-                menu.innerHTML =
-                    '<button class="dropdown-item danger" data-action="delete"><i class="bi bi-trash"></i>حذف</button>';
+                menu.innerHTML = '<button class="dropdown-item danger" data-action="delete"><i class="bi bi-trash"></i>حذف</button>';
                 document.body.appendChild(menu);
                 dropdownEl = menu;
-                menu.style.position = 'absolute';
+
                 menu.style.top = (rect.bottom + window.scrollY + 4) + 'px';
                 menu.style.left = Math.min(rect.left + window.scrollX, window.innerWidth - 160) + 'px';
 
-                menu.querySelector('.dropdown-item').addEventListener('click', async function() {
+                menu.querySelector('.dropdown-item').addEventListener('click', async function(ev) {
+                    ev.stopPropagation();
                     closeDropdown();
                     showProgress();
                     var res = await apiCall('deleteComment', {
@@ -1441,12 +1438,12 @@
 
                 setTimeout(function() {
                     document.addEventListener('click', function onDocClick(e) {
-                        if (dropdownEl && !dropdownEl.contains(e.target) && !btn.contains(e.target)) {
+                        if (dropdownEl && !dropdownEl.contains(e.target)) {
                             closeDropdown();
-                            document.removeEventListener('click', onDocClick);
+                            document.removeEventListener('click', onDocClick, true);
                         }
-                    });
-                }, 10);
+                    }, true);
+                }, 100);
             }
 
             function closeModal() {
@@ -1461,7 +1458,7 @@
                 var menuBtn = e.target.closest('.tweet-menu-btn');
                 if (menuBtn) {
                     e.stopPropagation();
-                    openTweetMenu(menuBtn, menuBtn.dataset.id, menuBtn.closest('.tweet-card').dataset.own === '1');
+                    openTweetMenu(menuBtn, menuBtn.dataset.id, menuBtn.dataset.own === '1');
                     return;
                 }
 
@@ -1504,9 +1501,6 @@
                 var profRes = await apiCall('getUserProfile', { eitaa_id: String(currentUser.id) });
                 if (profRes && profRes.ok && profRes.data) {
                     userProfile = profRes.data;
-                    if (userProfile.profile_image) {
-                        profileBtn.innerHTML = '<img src="' + escapeHtml(userProfile.profile_image) + '" alt="">';
-                    }
                 }
 
                 loadTrending();
