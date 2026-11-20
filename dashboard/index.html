@@ -930,7 +930,7 @@
         (function() {
             'use strict';
 
-            var API_URL = 'https://script.google.com/macros/s/AKfycby0m1Epv_vU334SqAMtgUdw-tfcXVGUIQjycO1X2f-WITddMxYONIUlnzcVsIxqNsTVeg/exec';
+            var API_URL = 'https://script.google.com/macros/s/AKfycbwgT7-8Nj9qfFXJI1bshgnGZZ_-sdfZ-Nu1f8SWHEYGFrCvoqty16zHNRFOdGxb0ZU/exec';
             var webApp = window.Eitaa && window.Eitaa.WebApp;
 
             var trendingScroll = document.getElementById('trendingScroll');
@@ -1023,6 +1023,8 @@
                     : '<i class="bi bi-person-fill"></i>';
                 var blueTick = t.is_official_channel ? '<img src="../images/bluetic.png" class="blue-tick" alt="official">' : '';
                 var imageHtml = t.image_link ? '<img class="tweet-image" src="' + escapeHtml(t.image_link) + '" alt="" loading="lazy">' : '';
+                var likedClass = t.liked_by_me ? ' liked' : '';
+                var heartIcon = t.liked_by_me ? 'bi-heart-fill' : 'bi-heart';
 
                 return '<div class="tweet-card" data-id="' + escapeHtml(t.message_number) + '" data-own="' + (isOwn ? '1' : '0') + '">' +
                     '<div class="tweet-head">' +
@@ -1036,8 +1038,8 @@
                     '<div class="tweet-text">' + escapeHtml(t.text) + '</div>' +
                     imageHtml +
                     '<div class="tweet-actions">' +
-                        '<button class="tweet-action-btn like-btn" data-id="' + escapeHtml(t.message_number) + '">' +
-                            '<i class="bi bi-heart"></i><span class="like-count">' + (t.likes_count || 0) + '</span>' +
+                        '<button class="tweet-action-btn like-btn' + likedClass + '" data-id="' + escapeHtml(t.message_number) + '">' +
+                            '<i class="bi ' + heartIcon + '"></i><span class="like-count">' + (t.likes_count || 0) + '</span>' +
                         '</button>' +
                         '<button class="tweet-action-btn comment-btn" data-id="' + escapeHtml(t.message_number) + '">' +
                             '<i class="bi bi-chat"></i><span>' + (t.comments_count || 0) + '</span>' +
@@ -1050,7 +1052,7 @@
             }
 
             async function loadTrending() {
-                var res = await apiCall('getTrendingTweets', { limit: 10 });
+                var res = await apiCall('getTrendingTweets', { limit: 10, current_eitaa_id: String(currentUser.id) });
                 if (res && res.ok && Array.isArray(res.data)) {
                     if (res.data.length === 0) {
                         trendingScroll.innerHTML = '<div class="empty-state" style="width:100%"><i class="bi bi-fire"></i><p>هنوز توئیت داغی نیست</p></div>';
@@ -1145,7 +1147,8 @@
                 var res = await apiCall('getRandomFeed', {
                     offset: feedOffset,
                     limit: 20,
-                    seed: feedSeed
+                    seed: feedSeed,
+                    current_eitaa_id: String(currentUser.id)
                 });
 
                 feedLoading.style.display = 'none';
@@ -1314,7 +1317,7 @@
                 modalBody.innerHTML = '<div class="feed-loading"><div class="mini-spinner"></div><span>در حال بارگذاری...</span></div>';
                 showProgress();
 
-                var postRes = await apiCall('getSinglePost', { message_number: tweetId });
+                var postRes = await apiCall('getSinglePost', { message_number: tweetId, current_eitaa_id: String(currentUser.id) });
                 if (!postRes || !postRes.ok || !postRes.data) {
                     modalBody.innerHTML = '<div class="empty-state"><i class="bi bi-x-circle"></i><p>توئیت پیدا نشد</p></div>';
                     finishProgress();
@@ -1335,6 +1338,8 @@
                 var displayName = owner.first_name ? (owner.first_name + ' ' + (owner.last_name || '')).trim() : (t.is_user_tweet ? 'کاربر' : t.channel_id);
                 var username = owner.username || (t.is_user_tweet ? 'user' : t.channel_id);
                 var avatar = owner.profile_image ? '<img src="' + escapeHtml(owner.profile_image) + '" alt="">' : '<i class="bi bi-person-fill"></i>';
+                var likedClass = t.liked_by_me ? ' liked' : '';
+                var heartIcon = t.liked_by_me ? 'bi-heart-fill' : 'bi-heart';
 
                 var commentsHtml = comments.length === 0
                     ? '<div class="empty-state" style="padding:20px;"><i class="bi bi-chat" style="font-size:30px;"></i><p>هنوز کامنتی نیست. اولین نفر باش!</p></div>'
@@ -1369,8 +1374,8 @@
                         '<div class="tweet-text">' + escapeHtml(t.text) + '</div>' +
                         imageHtml +
                         '<div class="tweet-actions">' +
-                            '<button class="tweet-action-btn like-btn" data-id="' + escapeHtml(t.message_number) + '">' +
-                                '<i class="bi bi-heart"></i><span class="like-count">' + (t.likes_count || 0) + '</span>' +
+                            '<button class="tweet-action-btn like-btn' + likedClass + '" data-id="' + escapeHtml(t.message_number) + '">' +
+                                '<i class="bi ' + heartIcon + '"></i><span class="like-count">' + (t.likes_count || 0) + '</span>' +
                             '</button>' +
                             '<button class="tweet-action-btn">' +
                                 '<i class="bi bi-chat"></i><span>' + (t.comments_count || 0) + '</span>' +
@@ -1504,7 +1509,7 @@
 
             async function openEditTweetModal(tweetId) {
                 showProgress();
-                var res = await apiCall('getSinglePost', { message_number: tweetId });
+                var res = await apiCall('getSinglePost', { message_number: tweetId, current_eitaa_id: String(currentUser.id) });
                 finishProgress();
                 if (!res || !res.ok || !res.data) { showToast('توئیت پیدا نشد'); return; }
                 composeMode = 'edit';
