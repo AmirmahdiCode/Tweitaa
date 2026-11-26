@@ -65,6 +65,22 @@
             padding-bottom: 80px;
         }
 
+        /* نوار بالای صفحه (جبران نوار ایتا) */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: 52px;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            z-index: 99;
+            pointer-events: none;
+        }
+        [data-theme="dark"] body::before {
+            background: rgba(15, 23, 42, 0.85);
+        }
+
         .bg-animation {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -98,19 +114,19 @@
 
         .header {
             position: sticky;
-            top: 48px;
+            top: 52px;
             z-index: 100;
-            background: rgba(255, 255, 255, 0.6);
+            background: rgba(255, 255, 255, 0.85);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-            padding: 10px 60px;
+            padding: 8px 60px;
             display: flex;
             justify-content: center;
             align-items: center;
         }
         [data-theme="dark"] .header {
-            background: rgba(15, 23, 42, 0.6);
+            background: rgba(15, 23, 42, 0.85);
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
         .header-inner {
@@ -123,16 +139,16 @@
             from { opacity: 0; transform: translateY(-5px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        .header-logo { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; transition: transform 0.3s ease; }
+        .header-logo { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; transition: transform 0.3s ease; }
         .header-logo:hover { transform: rotate(-10deg) scale(1.05); }
-        .header-typo { height: 30px; object-fit: contain; }
+        .header-typo { height: 26px; object-fit: contain; }
 
         .main-container {
             flex: 1;
             max-width: 600px;
             width: 100%;
             margin: 0 auto;
-            padding: 16px 0 100px;
+            padding: 12px 0 100px;
         }
 
         .section-title-row {
@@ -1641,7 +1657,7 @@
                 if (text.length > 500) { showToast('حداکثر ۵۰۰ کاراکتر'); return; }
 
                 composeSubmitBtn.disabled = true;
-                composeSubmitBtn.innerHTML = '<span class="mini-spinner white"></span><span style="margin-right:8px;">در حال بررسی توسط هوش مصنوعی...</span>';
+                composeSubmitBtn.innerHTML = '<span class="mini-spinner white"></span><span style="margin-right:8px;">در حال ثبت...</span>';
                 showProgress();
 
                 var res;
